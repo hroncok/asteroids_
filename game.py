@@ -1,10 +1,11 @@
+import math
+
 import pyglet
 from pyglet.window import key
 
-
-# constants
-ACCELERATION = 5
-
+# constants:
+ROTATION_GAIN = 1
+ACCELERATION_GAIN = .25
 
 # global game state goes here:
 window = pyglet.window.Window()  # game window
@@ -18,7 +19,8 @@ class Spaceship:
 
     x, y: position
     x_speed, y_speed: speed
-    rotation: rotation in degreees
+    rotation: rotation in degrees
+    rotation_speed: rotation speed in degrees per sec
     sprite: pyglet sprite with image
     """
     def __init__(self):
@@ -26,34 +28,44 @@ class Spaceship:
         self.y = window.height // 2
         self.x_speed = 0
         self.y_speed = 0
+        self.rotation = 0
+        self.rotation_speed = 0
+        self.acceleration = 0
 
         image = pyglet.image.load('images/spaceship.png')
+        image.anchor_x = image.width // 2
+        image.anchor_y = image.height // 2
         self.sprite = pyglet.sprite.Sprite(image, batch=batch)
 
         objects.append(self)
 
-    def tick(self, delta):
+    def tick(self, dt):
         if key.LEFT in keys:
-            self.x_speed -= 1
+            self.rotation_speed -= ROTATION_GAIN
         if key.RIGHT in keys:
-            self.x_speed += 1
+            self.rotation_speed += ROTATION_GAIN
         if key.DOWN in keys:
-            self.y_speed -= 1
+            self.acceleration -= ACCELERATION_GAIN
         if key.UP in keys:
-            self.y_speed += 1
+            self.acceleration += ACCELERATION_GAIN
 
-        self.x += delta * self.x_speed * ACCELERATION
-        self.y += delta * self.y_speed * ACCELERATION
-        print(self.x_speed, self.y_speed)
+        self.x += dt * self.x_speed
+        self.y += dt * self.y_speed
+        self.rotation = self.rotation + dt * self.rotation_speed
 
-        self.sprite.x = self.x - self.sprite.width // 2
-        self.sprite.y = self.y - self.sprite.height // 2
+        rotation_radians = math.radians(self.rotation)
+        self.x_speed += dt * self.acceleration * math.sin(rotation_radians)
+        self.y_speed += dt * self.acceleration * math.cos(rotation_radians)
+
+        self.sprite.rotation = self.rotation
+        self.sprite.x = self.x
+        self.sprite.y = self.y
 
 
-def tick_all_objects(delta):
+def tick_all_objects(dt):
     """Ticks all objects in our list"""
     for o in objects:
-        o.tick(delta)
+        o.tick(dt)
 
 
 def draw_all_objects():
