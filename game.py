@@ -1,4 +1,5 @@
 import pyglet
+from pyglet.window import key
 
 
 # global game state goes here:
@@ -28,6 +29,14 @@ class Spaceship:
         objects.append(self)
 
     def tick(self, delta):
+        if key.LEFT in keys:
+            self.x -= 1
+        if key.RIGHT in keys:
+            self.x += 1
+        if key.DOWN in keys:
+            self.y -= 1
+        if key.UP in keys:
+            self.y += 1
         self.sprite.x = self.x - self.sprite.width // 2
         self.sprite.y = self.y - self.sprite.height // 2
 
