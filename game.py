@@ -15,40 +15,31 @@ objects = []  # all game objects
 keys = set()  # currently pressed keys
 
 
-class Spaceship:
-    """Main playable thing in the game
+class SpaceObject:
+    """Movable thing in the game
 
     x, y: position
     x_speed, y_speed: speed
     rotation: rotation in degrees
     rotation_speed: rotation speed in degrees per sec
+    acceleration: forward acceleration
     sprite: pyglet sprite with image
     """
-    def __init__(self):
-        self.x = window.width // 2
-        self.y = window.height // 2
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
         self.x_speed = 0
         self.y_speed = 0
         self.rotation = 0
         self.rotation_speed = 0
         self.acceleration = 0
 
-        image = pyglet.image.load('images/spaceship.png')
+        image = pyglet.image.load(self.image())
         image.anchor_x = image.width // 2
         image.anchor_y = image.height // 2
         self.sprite = pyglet.sprite.Sprite(image, batch=batch)
 
         objects.append(self)
-
-    def handle_keys(self):
-        if key.LEFT in keys:
-            self.rotation_speed -= ROTATION_GAIN
-        if key.RIGHT in keys:
-            self.rotation_speed += ROTATION_GAIN
-        if key.DOWN in keys:
-            self.acceleration -= ACCELERATION_GAIN
-        if key.UP in keys:
-            self.acceleration += ACCELERATION_GAIN
 
     def update_sprite(self):
         self.sprite.rotation = self.rotation
@@ -56,8 +47,6 @@ class Spaceship:
         self.sprite.y = self.y
 
     def tick(self, dt):
-        self.handle_keys()
-
         self.x += dt * self.x_speed
         self.y += dt * self.y_speed
         self.rotation += dt * self.rotation_speed
@@ -70,6 +59,30 @@ class Spaceship:
         self.y %= window.height
 
         self.update_sprite()
+
+
+class Spaceship(SpaceObject):
+    """The playable object"""
+    def __init__(self):
+        super().__init__(x=window.width // 2,
+                         y=window.height // 2)
+
+    def image(self):
+        return 'images/spaceship.png'
+
+    def handle_keys(self):
+        if key.LEFT in keys:
+            self.rotation_speed -= ROTATION_GAIN
+        if key.RIGHT in keys:
+            self.rotation_speed += ROTATION_GAIN
+        if key.DOWN in keys:
+            self.acceleration -= ACCELERATION_GAIN
+        if key.UP in keys:
+            self.acceleration += ACCELERATION_GAIN
+
+    def tick(self, dt):
+        self.handle_keys()
+        super().tick(dt)
 
 
 def tick_all_objects(dt):
