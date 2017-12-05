@@ -2,6 +2,10 @@ import pyglet
 from pyglet.window import key
 
 
+# constants
+ACCELERATION = 5
+
+
 # global game state goes here:
 window = pyglet.window.Window()  # game window
 batch = pyglet.graphics.Batch()  # batch with all sprites
@@ -30,13 +34,18 @@ class Spaceship:
 
     def tick(self, delta):
         if key.LEFT in keys:
-            self.x -= 1
+            self.x_speed -= 1
         if key.RIGHT in keys:
-            self.x += 1
+            self.x_speed += 1
         if key.DOWN in keys:
-            self.y -= 1
+            self.y_speed -= 1
         if key.UP in keys:
-            self.y += 1
+            self.y_speed += 1
+
+        self.x += delta * self.x_speed * ACCELERATION
+        self.y += delta * self.y_speed * ACCELERATION
+        print(self.x_speed, self.y_speed)
+
         self.sprite.x = self.x - self.sprite.width // 2
         self.sprite.y = self.y - self.sprite.height // 2
 
