@@ -52,6 +52,9 @@ class SpaceObject:
         self.sprite.x = self.x
         self.sprite.y = self.y
 
+    def draw_circle(self):
+        draw_circle(self.x, self.y, self.radius)
+
     def tick(self, dt):
         self.x += dt * self.x_speed
         self.y += dt * self.y_speed
@@ -147,7 +150,7 @@ def draw_all_objects():
 
             # Draw
             for o in objects:
-                draw_circle(o.x, o.y, o.radius)
+                o.draw_circle()
             batch.draw()
 
             # Restore remembered state (this cancels the glTranslatef)
