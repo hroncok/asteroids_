@@ -22,6 +22,7 @@ class SpaceObject:
     """Movable thing in the game
 
     x, y: position
+    radius: radius of the object if we simplify it as circle
     x_speed, y_speed: speed
     rotation: rotation in degrees
     rotation_speed: rotation speed in degrees per sec
@@ -41,6 +42,8 @@ class SpaceObject:
         image.anchor_x = image.width // 2
         image.anchor_y = image.height // 2
         self.sprite = pyglet.sprite.Sprite(image, batch=batch)
+
+        self.radius = (image.width + image.height) // 4
 
         objects.append(self)
 
@@ -118,6 +121,20 @@ def tick_all_objects(dt):
         o.tick(dt)
 
 
+def draw_circle(x, y, radius):
+    iterations = 20
+    s = math.sin(2*math.pi / iterations)
+    c = math.cos(2*math.pi / iterations)
+
+    dx, dy = radius, 0
+
+    gl.glBegin(gl.GL_LINE_STRIP)
+    for i in range(iterations+1):
+        gl.glVertex2f(x+dx, y+dy)
+        dx, dy = (dx*c - dy*s), (dy*c + dx*s)
+    gl.glEnd()
+
+
 def draw_all_objects():
     """Draws our batch"""
     window.clear()
@@ -129,6 +146,8 @@ def draw_all_objects():
             gl.glTranslatef(x_offset, y_offset, 0)
 
             # Draw
+            for o in objects:
+                draw_circle(o.x, o.y, o.radius)
             batch.draw()
 
             # Restore remembered state (this cancels the glTranslatef)
