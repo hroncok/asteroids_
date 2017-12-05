@@ -1,4 +1,5 @@
 import math
+import random
 
 import pyglet
 from pyglet import gl
@@ -7,6 +8,8 @@ from pyglet.window import key
 # constants:
 ROTATION_GAIN = 1
 ACCELERATION_GAIN = .25
+RAND_ROT_LIMIT = 150
+RAND_SPEED_LIMIT = 150
 
 # global game state goes here:
 window = pyglet.window.Window()  # game window
@@ -85,6 +88,30 @@ class Spaceship(SpaceObject):
         super().tick(dt)
 
 
+class Asteroid(SpaceObject):
+    """The enemy object"""
+    def __init__(self):
+        flip = random.randint(0, 1)
+        if flip == 1:
+            x = window.width // 2
+            y = 0
+        else:
+            x = 0
+            y = window.height // 2
+        super().__init__(x=x, y=y)
+        self.rotation_speed = random.randint(-RAND_ROT_LIMIT, RAND_ROT_LIMIT)
+        self.x_speed = random.randint(-RAND_SPEED_LIMIT, RAND_SPEED_LIMIT)
+        self.y_speed = random.randint(-RAND_SPEED_LIMIT, RAND_SPEED_LIMIT)
+
+    def image(self):
+        size = random.choice(['big', 'med', 'small'])
+        images = 2
+        if size == 'big':
+            images = 4
+        number = random.randint(1, images)
+        return 'images/asteroid_{}{}.png'.format(size, number)
+
+
 def tick_all_objects(dt):
     """Ticks all objects in our list"""
     for o in objects:
@@ -126,6 +153,8 @@ window.push_handlers(
     on_key_release=key_released,
 )
 
-spaceship = Spaceship()
+Spaceship()
+Asteroid()
+Asteroid()
 
 pyglet.app.run()
