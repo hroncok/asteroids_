@@ -13,6 +13,7 @@ RAND_SPEED_LIMIT = 150
 RELOAD_TIME = .3
 LASER_SPEED = 500
 LASER_AGE = .8
+ASTEROID_SIZES = ('big', 'med', 'small')
 
 # global game state goes here:
 window = pyglet.window.Window()  # game window
@@ -168,7 +169,16 @@ class Laser(SpaceObject):
 
 class Asteroid(SpaceObject):
     """The enemy object"""
-    def __init__(self):
+    def __init__(self, origin=None):
+        if origin:
+            self.split_from(origin)
+        else:
+            self.first()
+        self.rotation_speed = random.randint(-RAND_ROT_LIMIT, RAND_ROT_LIMIT)
+        self.x_speed = random.randint(-RAND_SPEED_LIMIT, RAND_SPEED_LIMIT)
+        self.y_speed = random.randint(-RAND_SPEED_LIMIT, RAND_SPEED_LIMIT)
+
+    def first(self):
         flip = random.randint(0, 1)
         if flip == 1:
             x = window.width // 2
@@ -176,18 +186,19 @@ class Asteroid(SpaceObject):
         else:
             x = 0
             y = window.height // 2
+        self.size = random.choice(ASTEROID_SIZES)
         super().__init__(x=x, y=y)
-        self.rotation_speed = random.randint(-RAND_ROT_LIMIT, RAND_ROT_LIMIT)
-        self.x_speed = random.randint(-RAND_SPEED_LIMIT, RAND_SPEED_LIMIT)
-        self.y_speed = random.randint(-RAND_SPEED_LIMIT, RAND_SPEED_LIMIT)
+
+    def split_from(self, origin):
+        self.size = ASTEROID_SIZES[ASTEROID_SIZES.index(origin.size) + 1]
+        super().__init__(x=origin.x, y=origin.y)
 
     def image(self):
-        size = random.choice(['big', 'med', 'small'])
         images = 2
-        if size == 'big':
+        if self.size == 'big':
             images = 4
         number = random.randint(1, images)
-        return 'images/asteroid_{}{}.png'.format(size, number)
+        return 'images/asteroid_{}{}.png'.format(self.size, number)
 
     def hit_by_spaceship(self, spaceship):
         spaceship.delete()
@@ -195,6 +206,9 @@ class Asteroid(SpaceObject):
     def hit_by_laser(self, laser):
         laser.delete()
         self.delete()
+        if self.size != ASTEROID_SIZES[-1]:
+            Asteroid(self)
+            Asteroid(self)
 
 
 def tick_all_objects(dt):
