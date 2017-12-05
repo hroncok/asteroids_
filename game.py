@@ -40,7 +40,7 @@ class Spaceship:
 
         objects.append(self)
 
-    def tick(self, dt):
+    def handle_keys(self):
         if key.LEFT in keys:
             self.rotation_speed -= ROTATION_GAIN
         if key.RIGHT in keys:
@@ -49,6 +49,14 @@ class Spaceship:
             self.acceleration -= ACCELERATION_GAIN
         if key.UP in keys:
             self.acceleration += ACCELERATION_GAIN
+
+    def update_sprite(self):
+        self.sprite.rotation = self.rotation
+        self.sprite.x = self.x
+        self.sprite.y = self.y
+
+    def tick(self, dt):
+        self.handle_keys()
 
         self.x += dt * self.x_speed
         self.y += dt * self.y_speed
@@ -61,9 +69,7 @@ class Spaceship:
         self.x %= window.width
         self.y %= window.height
 
-        self.sprite.rotation = self.rotation
-        self.sprite.x = self.x
-        self.sprite.y = self.y
+        self.update_sprite()
 
 
 def tick_all_objects(dt):
