@@ -5,6 +5,7 @@ import pyglet
 window = pyglet.window.Window()  # game window
 batch = pyglet.graphics.Batch()  # batch with all sprites
 objects = []  # all game objects
+keys = set()  # currently pressed keys
 
 
 class Spaceship:
@@ -43,10 +44,22 @@ def draw_all_objects():
     batch.draw()
 
 
+def key_pressed(sym, mod):
+    """Adds key to the keys set"""
+    keys.add(sym)
+
+
+def key_released(sym, mod):
+    """Removes key from the keys set"""
+    keys.discard(sym)
+
+
 pyglet.clock.schedule_interval(tick_all_objects, 1/30)
 
 window.push_handlers(
     on_draw=draw_all_objects,
+    on_key_press=key_pressed,
+    on_key_release=key_released,
 )
 
 spaceship = Spaceship()
