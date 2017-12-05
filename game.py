@@ -10,6 +10,9 @@ ROTATION_GAIN = 1
 ACCELERATION_GAIN = .25
 RAND_ROT_LIMIT = 150
 RAND_SPEED_LIMIT = 150
+RELOAD_TIME = .3
+LASER_SPEED = 500
+LASER_AGE = .8
 
 # global game state goes here:
 window = pyglet.window.Window()  # game window
@@ -79,10 +82,14 @@ class SpaceObject:
 
 
 class Spaceship(SpaceObject):
-    """The playable object"""
+    """The playable object
+
+    last_shot: when was last shot fired
+    """
     def __init__(self):
         super().__init__(x=window.width // 2,
                          y=window.height // 2)
+        self.last_shot = 0
 
     def image(self):
         return 'images/spaceship.png'
@@ -96,6 +103,16 @@ class Spaceship(SpaceObject):
             self.acceleration -= ACCELERATION_GAIN
         if key.UP in keys:
             self.acceleration += ACCELERATION_GAIN
+        if key.SPACE in keys:
+            self.attempt_shoot()
+
+    def shoot(self):
+        Laser(self)
+        self.last_shot = RELOAD_TIME
+
+    def attempt_shoot(self):
+        if self.last_shot <= 0:
+            self.shoot()
 
     def check_collisions(self):
         for o in objects:
@@ -108,6 +125,33 @@ class Spaceship(SpaceObject):
         self.handle_keys()
         super().tick(dt)
         self.check_collisions()
+        self.last_shot -= dt
+
+
+class Laser(SpaceObject):
+    """Shot laser. It only last for some time.
+
+    age: how old is this laser (time elapsed from shot)
+    """
+    def __init__(self, origin):
+        super().__init__(origin.x, origin.y)
+        self.rotation = origin.rotation
+        self.x_speed = origin.x_speed
+        self.y_speed = origin.y_speed
+
+        rotation_radians = math.radians(self.rotation)
+        self.x_speed += LASER_SPEED * math.sin(rotation_radians)
+        self.y_speed += LASER_SPEED * math.cos(rotation_radians)
+        self.age = 0
+
+    def image(self):
+        return 'images/laser.png'
+
+    def tick(self, dt):
+        super().tick(dt)
+        self.age += dt
+        if self.age > LASER_AGE:
+            self.delete()
 
 
 class Asteroid(SpaceObject):
