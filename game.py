@@ -76,6 +76,10 @@ class SpaceObject:
         # does nothing
         pass
 
+    def hit_by_laser(self, laser):
+        # does nothing
+        pass
+
     def delete(self):
         self.sprite.delete()
         objects.remove(self)
@@ -147,8 +151,16 @@ class Laser(SpaceObject):
     def image(self):
         return 'images/laser.png'
 
+    def check_collisions(self):
+        for o in objects:
+            if o == self:
+                continue
+            if overlaps(self, o):
+                o.hit_by_laser(self)
+
     def tick(self, dt):
         super().tick(dt)
+        self.check_collisions()
         self.age += dt
         if self.age > LASER_AGE:
             self.delete()
@@ -179,6 +191,10 @@ class Asteroid(SpaceObject):
 
     def hit_by_spaceship(self, spaceship):
         spaceship.delete()
+
+    def hit_by_laser(self, laser):
+        laser.delete()
+        self.delete()
 
 
 def tick_all_objects(dt):
