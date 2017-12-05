@@ -60,7 +60,7 @@ class Spaceship:
 
         self.x += dt * self.x_speed
         self.y += dt * self.y_speed
-        self.rotation = self.rotation + dt * self.rotation_speed
+        self.rotation += dt * self.rotation_speed
 
         rotation_radians = math.radians(self.rotation)
         self.x_speed += dt * self.acceleration * math.sin(rotation_radians)
