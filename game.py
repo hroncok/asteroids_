@@ -57,6 +57,9 @@ class Spaceship:
         self.x_speed += dt * self.acceleration * math.sin(rotation_radians)
         self.y_speed += dt * self.acceleration * math.cos(rotation_radians)
 
+        self.x %= window.width
+        self.y %= window.height
+
         self.sprite.rotation = self.rotation
         self.sprite.x = self.x
         self.sprite.y = self.y
