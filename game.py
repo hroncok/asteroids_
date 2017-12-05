@@ -69,6 +69,14 @@ class SpaceObject:
 
         self.update_sprite()
 
+    def hit_by_spaceship(self, spaceship):
+        # does nothing
+        pass
+
+    def delete(self):
+        self.sprite.delete()
+        objects.remove(self)
+
 
 class Spaceship(SpaceObject):
     """The playable object"""
@@ -89,9 +97,17 @@ class Spaceship(SpaceObject):
         if key.UP in keys:
             self.acceleration += ACCELERATION_GAIN
 
+    def check_collisions(self):
+        for o in objects:
+            if o == self:
+                continue
+            if overlaps(self, o):
+                o.hit_by_spaceship(self)
+
     def tick(self, dt):
         self.handle_keys()
         super().tick(dt)
+        self.check_collisions()
 
 
 class Asteroid(SpaceObject):
@@ -116,6 +132,9 @@ class Asteroid(SpaceObject):
             images = 4
         number = random.randint(1, images)
         return 'images/asteroid_{}{}.png'.format(size, number)
+
+    def hit_by_spaceship(self, spaceship):
+        spaceship.delete()
 
 
 def tick_all_objects(dt):
@@ -165,6 +184,22 @@ def key_pressed(sym, mod):
 def key_released(sym, mod):
     """Removes key from the keys set"""
     keys.discard(sym)
+
+
+def distance(a, b, wrap_size):
+    """Distance in one direction (x or y)"""
+    result = abs(a - b)
+    if result > wrap_size / 2:
+        result = wrap_size - result
+    return result
+
+
+def overlaps(a, b):
+    """Returns true iff two space objects overlap"""
+    distance_squared = (distance(a.x, b.x, window.width) ** 2 +
+                        distance(a.y, b.y, window.height) ** 2)
+    max_distance_squared = (a.radius + b.radius) ** 2
+    return distance_squared < max_distance_squared
 
 
 pyglet.clock.schedule_interval(tick_all_objects, 1/30)
