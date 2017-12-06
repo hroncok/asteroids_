@@ -82,8 +82,16 @@ class SpaceObject:
         pass
 
     def delete(self):
-        self.sprite.delete()
-        objects.remove(self)
+        try:
+            self.sprite.delete()
+        except AttributeError:
+            # already deleted
+            pass
+        try:
+            objects.remove(self)
+        except ValueError:
+            # already deleted
+            pass
 
 
 class Spaceship(SpaceObject):
