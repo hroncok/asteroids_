@@ -7,7 +7,7 @@ from pyglet.window import key
 
 # constants:
 ROTATION_GAIN = 5
-ACCELERATION_GAIN = 20
+ACCELERATION = 40
 RAND_ROT_LIMIT = 150
 RAND_SPEED_LIMIT = 150
 RELOAD_TIME = .3
@@ -30,7 +30,6 @@ class SpaceObject:
     x_speed, y_speed: speed
     rotation: rotation in degrees
     rotation_speed: rotation speed in degrees per sec
-    acceleration: forward acceleration
     sprite: pyglet sprite with image
     """
     def __init__(self, x, y):
@@ -40,7 +39,6 @@ class SpaceObject:
         self.y_speed = 0
         self.rotation = 0
         self.rotation_speed = 0
-        self.acceleration = 0
 
         image = pyglet.image.load(self.image())
         image.anchor_x = image.width // 2
@@ -63,10 +61,6 @@ class SpaceObject:
         self.x += dt * self.x_speed
         self.y += dt * self.y_speed
         self.rotation += dt * self.rotation_speed
-
-        rotation_radians = math.radians(self.rotation)
-        self.x_speed += dt * self.acceleration * math.sin(rotation_radians)
-        self.y_speed += dt * self.acceleration * math.cos(rotation_radians)
 
         self.x %= window.width
         self.y %= window.height
@@ -107,16 +101,15 @@ class Spaceship(SpaceObject):
     def image(self):
         return 'images/spaceship.png'
 
-    def handle_keys(self):
+    def handle_keys(self, dt):
         if key.LEFT in keys:
             self.rotation -= ROTATION_GAIN
         if key.RIGHT in keys:
             self.rotation += ROTATION_GAIN
-        self.acceleration = 0
-        if key.DOWN in keys:
-            self.acceleration -= ACCELERATION_GAIN
         if key.UP in keys:
-            self.acceleration += ACCELERATION_GAIN
+            rotation_radians = math.radians(self.rotation)
+            self.x_speed += dt * ACCELERATION * math.sin(rotation_radians)
+            self.y_speed += dt * ACCELERATION * math.cos(rotation_radians)
         if key.SPACE in keys:
             self.attempt_shoot()
 
@@ -136,7 +129,7 @@ class Spaceship(SpaceObject):
                 o.hit_by_spaceship(self)
 
     def tick(self, dt):
-        self.handle_keys()
+        self.handle_keys(dt)
         super().tick(dt)
         self.check_collisions()
         self.last_shot -= dt
