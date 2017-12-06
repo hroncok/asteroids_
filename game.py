@@ -6,7 +6,7 @@ from pyglet import gl
 from pyglet.window import key
 
 # constants:
-ROTATION_GAIN = 1
+ROTATION_GAIN = 5
 ACCELERATION_GAIN = 20
 RAND_ROT_LIMIT = 150
 RAND_SPEED_LIMIT = 150
@@ -101,9 +101,9 @@ class Spaceship(SpaceObject):
 
     def handle_keys(self):
         if key.LEFT in keys:
-            self.rotation_speed -= ROTATION_GAIN
+            self.rotation -= ROTATION_GAIN
         if key.RIGHT in keys:
-            self.rotation_speed += ROTATION_GAIN
+            self.rotation += ROTATION_GAIN
         self.acceleration = 0
         if key.DOWN in keys:
             self.acceleration -= ACCELERATION_GAIN
