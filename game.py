@@ -210,7 +210,8 @@ class Asteroid(SpaceObject):
         return 'images/asteroid_{}{}.png'.format(self.size, number)
 
     def hit_by_spaceship(self, spaceship):
-        spaceship.delete()
+        if key.LSHIFT not in keys:
+            spaceship.delete()
 
     def hit_by_laser(self, laser):
         laser.delete()
